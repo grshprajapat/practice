@@ -14,8 +14,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import Moment from 'moment';
 
 class AddProduct extends Component {
+	
+	
   constructor(props) {
     super(props);
+		this.state = {isToggleOn: true};
 	    this.state = {isChecked: false};	
 	this.validator = new ReeValidate({
       title: 'required|min:3',
@@ -25,18 +28,23 @@ class AddProduct extends Component {
 		this.handleChange = this.handleChange.bind(this);
 		this.handleDate = this.handleDate.bind(this);
 		
+		 
+		
     this.state = {
       // name: '',
+	  isLoading: false, 
       title: '',
       sub_title: '',
       product_category: '',
 	  description: '',
       vin: '',
+      product_image: [],
+	  // file: null,
       product_condition: '',
       product_brand: '',
       product_year: '',
       fuel_type: '',
-      cd_player: false,
+      cd_player: '',
 	  startDate: new Date(),
 	  
       anti_lock_brakes: '',
@@ -54,21 +62,22 @@ class AddProduct extends Component {
       product_model: '',
       product_color: '',
       storage_capacity: '',
-      // camera_resolution: '',
-      // sim_card_slot: '',
-      // ram_memory_card: '',
-      // interior: '',
-      // exterior: '',
-      // video_file_link: '',
-      // youtube: '',
-      // sale_by: '',
-      // selling_duration: '',
-      // selling_quantity: '',
+      camera_resolution: '',
+      sim_card_slot: '',
+      ram_memory_card: '',
+      interior: '',
+      exterior: '',
+      video_file_link: '',
+      youtube: '',
+      sale_by: '',
+      selling_duration: '',
+      selling_price: '',
+      selling_quantity: '',
       // paypal: '',
       // additional_payment: '',
       // payment_instruction: '',
-      // domestic_return: '',
-      // international_return: '',
+      domestic_return: '',
+      international_return: '',
       // shhipping_rate: '',
       // free_shipping: '',
       // item_location: '',
@@ -80,6 +89,7 @@ class AddProduct extends Component {
 	  errors: {},
 	  visible: false,
 	  data:[],
+	  
     };
 	
 	this.api = window.appUrl+'api/v1/addAdminProduct';
@@ -91,6 +101,7 @@ class AddProduct extends Component {
 	
 	addNotification() {
 		// alert(message);
+		
 		this.setState({ visible: true }, () => {
 		  window.setTimeout(() => {
 			this.setState({ visible: false });
@@ -130,9 +141,41 @@ class AddProduct extends Component {
 		
    
 	}
-// 
+	
+
 	  
+	/** image uploading **/
+    uploadMultipleFiles = (e) => {
+        let files = Array.from(e.target.files);
 	  
+		files.forEach((file) => {
+			// alert(file);
+			let reader = new FileReader();
+			reader.onloadend = () => {
+				this.setState({    
+					 // files: [...this.state.files, file],
+					 product_image: [...this.state.product_image, reader.result],
+					 file: [...this.state.product_image, reader.result]
+				});
+				
+			}
+			
+		reader.readAsDataURL(file);
+		  });
+        
+    }
+	
+	resetFile = id => {
+		var array = [...this.state.product_image]; // make a separate copy of the array
+	    var index = array.indexOf(id);
+	 
+	    if (index !== -1) {
+		  array.splice(index, 1);
+		  this.setState({product_image: array});
+	    }
+    }
+	
+	//iamge///	
 	  
 	handleDate(date) {
 		this.setState({
@@ -143,6 +186,7 @@ class AddProduct extends Component {
 	handleSubmit = (e) => {
 			
 		e.preventDefault();
+		this.setState({ isLoading: true });
 		const { title, sub_title } = this.state;
 		const credentials = {
 		  title,
@@ -152,13 +196,17 @@ class AddProduct extends Component {
 		if(this.state.description == '')
 		{
 			this.setState({ errorDesc: 'Please enter the desciption.' });
+			this.setState({ isLoading: false });
+			return false;
 			// this.setState({ isLoading: false });
 			// return false;
 		}
+		
+		
 	
 		this.validator.validateAll(credentials).then((success) => {
 		  if (success) {
-
+		
 			 // alert(this.state.warrenty);
 			let formData = new FormData();
 			// formData.append("name", this.state.name);
@@ -167,6 +215,11 @@ class AddProduct extends Component {
 			formData.append("product_category", this.state.product_category);
 			formData.append("description", this.state.description);
 			formData.append("vin", this.state.vin);
+			 this.state.product_image.forEach((image_file) => 
+			 { 
+			
+             formData.append('file[]', 	);
+				});
 			formData.append("product_condition", this.state.product_condition);
 			formData.append("product_brand", this.state.product_brand);
 			formData.append("product_year",Moment(this.state.startDate).format('YYYY'));
@@ -180,28 +233,30 @@ class AddProduct extends Component {
 			formData.append("suv", this.state.suv);
 			formData.append("air_bags", this.state.air_bags);
 			formData.append("sunroof", this.state.sunroof);
-			// formData.append("engine", this.state.engine);
-			// formData.append("transmission", this.state.transmission);
-			// formData.append("warrenty", this.state.warrenty);
-			// formData.append("product_make", this.state.product_make);
-			// formData.append("product_model", this.state.product_model);
-			// formData.append("product_color", this.state.product_color);
-			// formData.append("stoage_capacity", this.state.stoage_capacity);
-			// formData.append("camera_resolution", this.state.camera_resolution);
-			// formData.append("sim_card_slot", this.state.sim_card_slot);
-			// formData.append("ram_memory_card", this.state.ram_memory_card);
-			// formData.append("interior", this.state.interior);
-			// formData.append("exterior", this.state.exterior);
-			// formData.append("video_file_link", this.state.video_file_link);
-			// formData.append("youtube", this.state.youtube);
-			// formData.append("sale_by", this.state.sale_by);
-			// formData.append("selling_duration", this.state.selling_duration);
-			// formData.append("domestic_return", this.state.domestic_return);
-			// formData.append("international_return", this.state.international_return);
-	;
+			formData.append("engine", this.state.engine);
+			formData.append("transmission", this.state.transmission);
+			formData.append("warrenty", this.state.warrenty);
+			formData.append("product_make", this.state.product_make);
+			formData.append("product_model", this.state.product_model);
+			formData.append("product_color", this.state.product_color);
+			formData.append("storage_capacity", this.state.storage_capacity);
+			formData.append("camera_resolution", this.state.camera_resolution);
+			formData.append("sim_card_slot", this.state.sim_card_slot);
+			formData.append("ram_memory_card", this.state.ram_memory_card);
+			formData.append("interior", this.state.interior);
+			formData.append("exterior", this.state.exterior);
+			formData.append("video_file_link", this.state.video_file_link);
+			formData.append("youtube", this.state.youtube);
+			formData.append("sale_by", this.state.sale_by);
+			formData.append("selling_duration", this.state.selling_duration);
+			formData.append("selling_price", this.state.selling_price);
+			formData.append("selling_quantity", this.state.selling_quantity);
+			formData.append("domestic_return", this.state.domestic_return);
+			formData.append("international_return", this.state.international_return);
+	
 			
 			
-			// formData.append("cd_player", this.state.cd_player);
+			
 			
 			axios({
 			  method: "post",
@@ -210,11 +265,11 @@ class AddProduct extends Component {
 			  config: { headers: { "Content-Type": "multipart/form-data" } }
 			 })
 			 .then(response => {
-				 
+				 window.scrollTo(0, 0);
 				 this.loginForm.reset();
 		  
 				if (response.data.status) {
-					// alert(response.data.message);
+					
 					this.addNotification();
 				}
 			  })
@@ -253,10 +308,13 @@ class AddProduct extends Component {
 	
     handleChecked (e) {
 		const { name, checked } = e.target;
-		// alert(checked)
-		// alert(name)
+		// alert(name);
+		// alert(checked);
 		this.setState({ [name]: e.target.checked });
-		// alert(this.state.cd_player)
+		
+		
+		
+		
 	}
 	
 	handleChange = (e) => {
@@ -371,7 +429,9 @@ class AddProduct extends Component {
     const { jAdminAuthenticated } = this.props;
 	
 	const category = Array.from(this.state.category); 
-	const subcategory = Array.from(this.state.subCategory); 
+	const subcategory = Array.from(this.state.subCategory);
+	
+	const productImages = Array.from(this.state.product_image); 
 	
 	const {  errors } = this.state;
 	
@@ -588,9 +648,9 @@ class AddProduct extends Component {
 									}}
 									
 								   />
-								   <br/>
+								  
 								
-							<div className="row">
+									<div className="row">
 									<div className="col-sm-6">
 									  <div className="form-group">
 										  <label htmlFor="vin">Vin</label>
@@ -613,9 +673,101 @@ class AddProduct extends Component {
 										  )}
 										</div>
 									</div>
+									</div>
 									
 									
-									
+									{/*  product image upload start*/}
+									<fieldset 
+									  style={{border: '1px solid #c0c0c0', margin: '0 2px'}}
+									>
+									<div className="form-group">
+									  <label htmlFor="product_image">Product Image</label>
+										
+										<div id="picture" style={{display: 'block'}} className='py-3 px-3'>
+											<div className='d-flex'>
+											{this.state.product_image != null &&
+											  productImages.slice((productImages.length - 1), productImages.length).map((options, key) => ( 
+												<div style={{visibility: 'visible', animationDuration: '1.8s', animationName: 'fadeIn'}}>
+												  <input 
+												    id="imageUploads" 
+													type="file" 
+													name="product_image" 
+													onChange={this.uploadMultipleFiles} 
+													multiple="multiple"
+													style={{zIndex: '10', marginTop: '-14px', opacity: '0', height: '150px', position: 'absolute', width: '150px'}}
+												  />
+												  <div style={{zIndex: '100', position: 'relative', textAlign: 'right', marginRight: '10%', top: '-31%'}}> 
+												    <span onClick={() => this.resetFile(options)} ><i className="fa fa-times-circle-o" /></span>
+												  </div>
+												  
+												  <div className="pr-3" style={{position: 'relative', float: 'left', marginTop: '-20%',width: '200px', marginLeft: '-2px', height: '175px'}} >
+												  <img className="w-100" src={options} style={{width: '200px !important', height: '175px', background: 'white', border: '2px dashed #ccc',visibility: 'visible', animationDuration: '1.8s', animationName: 'fadeIn'}}/>
+												</div>
+											  </div>
+											))
+											}
+											
+											<div 
+											  style={{visibility: 'visible', 
+												animationDuration: '1.8s', 
+												animationName: 'fadeIn', 
+												width: '120px', 
+												height: '120px', 
+												textAlign: 'center', 
+												marginTop: '10px',
+												border: '2px dashed #ccc',
+												color: '#ccc',
+												fontSize: '13pt',
+												float: 'left',
+												marginRight: '9px',
+												marginBottom: '5px',}}>
+											  <input 
+												id="imageUploads" 
+												type="file" 
+												name="product_image" 
+												onChange={this.uploadMultipleFiles} 
+												multiple="multiple"
+												style={{zIndex: '10', marginTop: '-14px', opacity: '0', height: '120px', position: 'absolute', width: '120px'}}
+											  />
+											 <i className="fa fa-plus picture_bx_file_add mt-4" /> 
+											 <p>Add Photos</p>
+											  
+										   </div>
+										  
+										   {this.state.product_image.length >= 2 &&
+											  productImages.slice(0, (productImages.length - 1)).map((options, key) => ( 
+												<div style={{visibility: 'visible', animationDuration: '1.8s', animationName: 'fadeIn'}}>
+												  <input 
+												    id="imageUploads" 
+													type="file" 
+													name="product_image" 
+													onChange={this.uploadMultipleFiles} 
+													multiple="multiple"
+													style={{zIndex: '10', marginTop: '-14px', opacity: '0', height: '120px', position: 'absolute', width: '120px'}}
+												  />
+												  <div style={{zIndex: '100', position: 'relative', textAlign: 'right', marginRight: '10%', top: '-31%'}}> 
+												    <span onClick={() => this.resetFile(options)} ><i className="fa fa-times-circle-o" /></span>
+												  </div>
+												  
+												  <div className="pr-3" style={{position: 'relative', float: 'left', marginTop: '-38%',width: '120px', marginLeft: '-2px', height: '120px'}} >
+												  <img className="w-100" src={options} style={{width: '120px !important', height: '120px', background: 'white', border: '2px dashed #ccc',visibility: 'visible', animationDuration: '1.8s', animationName: 'fadeIn'}}/>
+												</div>
+											  </div>
+											))
+											}
+											
+										  </div>
+										</div>
+										
+										
+										
+                
+										
+									</div>
+									</fieldset>
+								
+								{/*  product image upload end*/}
+									<div className="row">
 									<div className="col-sm-6">
 									  <div className="form-group">
 										  <label htmlFor="product_condition">Product  Condition</label>
@@ -715,7 +867,7 @@ class AddProduct extends Component {
 						
 								  <label className="checkbox-inline">
 									<input type="checkbox" defaultChecked={this.state.cd_player} name='cd_player'  onChange={this.handleChecked} />
-									  Cd Player
+									  &nbsp; Cd Player
 									</label>
 							
 									
@@ -725,7 +877,7 @@ class AddProduct extends Component {
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='anti_lock_brakes' defaultChecked={this.state.anti_lock_brakes} onChange={this.handleChecked}
 									 />
-									  Anti-locks brakes
+									   &nbsp; Anti-locks brakes
 									</label>
 								
 									&nbsp;
@@ -734,7 +886,7 @@ class AddProduct extends Component {
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='air_conditioning' defaultChecked={this.state.air_conditioning}  onChange={this.handleChecked}
 									/>
-									  Air conditioning
+									  &nbsp; Air conditioning
 									</label>
 									
 									&nbsp;
@@ -742,49 +894,49 @@ class AddProduct extends Component {
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='power_seat' defaultChecked={this.state.power_seat}  onChange={this.handleChecked}
 									/>
-									  Power Seat
+									   &nbsp; Power Seat
 									</label>
 									&nbsp;
 									&nbsp;
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='power_locks' defaultChecked={this.state.power_locks}  onChange={this.handleChecked}
 									 />
-										Power Locks
+									 &nbsp;	Power Locks
 									</label>
 									&nbsp;
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='cruise_control' defaultChecked={this.state.cruise_control}  onChange={this.handleChecked}
 									/>
-										Cruise Control
+										 &nbsp; Cruise Control
 									</label>
 									&nbsp;
 									&nbsp;
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='suv' defaultChecked={this.state.suv}  onChange={this.handleChecked}
 									 />
-										Suv
+									 &nbsp;	Suv
 									</label>
 									&nbsp;
 									&nbsp;
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='air_bags' defaultChecked={this.state.air_bags} onChange={this.handleChecked}
 									 />
-										Air Bags
+										 &nbsp; Air Bags
 									</label>
 									&nbsp;
 									&nbsp;
 									<label className="checkbox-inline">
 									  <input type="checkbox" name='sunroof' defaultChecked={this.state.sunroof}  onChange={this.handleChecked}
 									/>
-										Sunroof
+										 &nbsp; Sunroof
 									</label>
 									
 								  </div>
 								  
 							</fieldset>
 									
-								{ /* 
-								<fieldset 
+								
+							 	<fieldset 
 								style={{border: '1px solid #c0c0c0', margin: '0 2px', padding: '0.35em 0.625em 0.75em', display: 'block', marginInlineStart: '2px', marginInlineEnd: '2px', paddingBlockStart: '0.35em', paddingInlineStart: '0.75em', paddingInlineEnd: '23.75em', paddingBlockEnd: '0.625em', minInlineSize: 'min-content', marginBottom: '1em'}}
 									>	
 									
@@ -931,6 +1083,7 @@ class AddProduct extends Component {
 								  )}
 								</div>
 								</div>
+								
 									<div className="col-sm-4">
 								<div className="form-group">
 								  <label htmlFor="storage_capacity">Product Storage Capacity</label>
@@ -959,7 +1112,7 @@ class AddProduct extends Component {
 								
 								
 								</fieldset>
-								
+							
 								<fieldset 
 							  style={{border: '1px solid #c0c0c0', margin: '0 2px', padding: '0.35em 0.625em 0.75em', display: 'block', marginInlineStart: '2px', marginInlineEnd: '2px', paddingBlockStart: '0.35em', paddingInlineStart: '0.75em', paddingInlineEnd: '23.75em', paddingBlockEnd: '0.625em', minInlineSize: 'min-content', marginBottom: '1em'}}
 							>
@@ -1115,8 +1268,6 @@ class AddProduct extends Component {
 								
 								
 									
-						
-							
 								  
 							
 								
@@ -1206,6 +1357,27 @@ class AddProduct extends Component {
 									</div>
 								  )}
 								</div>
+									<div className="form-group">
+								  <label htmlFor="selling_price">Product Selling Price</label>
+								  <input
+									id="selling_price"
+									type="number"
+									step="0.01"
+									className={classNames('form-control', {
+									  'is-invalid': 'selling_price' in errors,
+									})}
+									name="selling_price"
+									placeholder="Enter Selling Price"
+									onChange={this.handleChange}
+									onBlur={this.handleBlur}
+								  />
+								  
+								  {'selling_price' in errors && (
+									<div className="invalid-feedback">
+									  {errors.selling_price}
+									</div>
+								  )}
+								</div>
 									
 									<div className="form-group">
 								  <label htmlFor="selling_quantity">Selling Quantity</label>
@@ -1227,34 +1399,23 @@ class AddProduct extends Component {
 									</div>
 								  )}
 								</div>
-								<style dangerouslySetInnerHTML={{__html: "\n.switch {\n  position: relative;\n  display: inline-block;\n  width: 60px;\n  height: 34px;\n}\n\n.switch input { \n  opacity: 0;\n  width: 0;\n  height: 0;\n}\n\n.slider {\n  position: absolute;\n  cursor: pointer;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: #ccc;\n  -webkit-transition: .4s;\n  transition: .4s;\n}\n\n.slider:before {\n  position: absolute;\n  content: \"\";\n  height: 26px;\n  width: 26px;\n  left: 4px;\n  bottom: 4px;\n  background-color: white;\n  -webkit-transition: .4s;\n  transition: .4s;\n}\n\ninput:checked + .slider {\n  background-color: #2196F3;\n}\n\ninput:focus + .slider {\n  box-shadow: 0 0 1px #2196F3;\n}\n\ninput:checked + .slider:before {\n  -webkit-transform: translateX(26px);\n  -ms-transform: translateX(26px);\n  transform: translateX(26px);\n}\n\n/* Rounded sliders *//* \n.slider.round {\n  border-radius: 34px;\n}\n\n.slider.round:before {\n  border-radius: 50%;\n}\n" }} /> */
-									/* {
+	
+								<style dangerouslySetInnerHTML={{__html: "\n.switch {\n  position: relative;\n  display: inline-block;\n  width: 60px;\n  height: 34px;\n}\n\n.switch input { \n  opacity: 0;\n  width: 0;\n  height: 0;\n}\n\n.slider {\n  position: absolute;\n  cursor: pointer;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: #ccc;\n  -webkit-transition: .4s;\n  transition: .4s;\n}\n\n.slider:before {\n  position: absolute;\n  content: \"\";\n  height: 26px;\n  width: 26px;\n  left: 4px;\n  bottom: 4px;\n  background-color: white;\n  -webkit-transition: .4s;\n  transition: .4s;\n}\n\ninput:checked + .slider {\n  background-color: #2196F3;\n}\n\ninput:focus + .slider {\n  box-shadow: 0 0 1px #2196F3;\n}\n\ninput:checked + .slider:before {\n  -webkit-transform: translateX(26px);\n  -ms-transform: translateX(26px);\n  transform: translateX(26px);\n}\n\n/* Rounded sliders *//* \n.slider.round {\n  border-radius: 34px;\n}\n\n.slider.round:before {\n  border-radius: 50%;\n}\n" }} /> 
+									
 									<div className="form-group">
 									
 									<label htmlFor="domestic_return">Domestic Return</label>
 									<br/>
-									<button 
-										type="button"
-									name="domestic_return" 
 								
-									onChange={this.handleChange}
-									onBlur={this.handleBlur}
-									className="btn btn-primary btn-sm"
-									onChange={this.handleChange}
-									onBlur={this.handleBlur}
-									>
-									Domestic Return 
-									
-									</button>
-									&nbsp;
-									&nbsp;
-									<label className="switch">
-									<input type="checkbox" />
-									<span className="slider round" />
-							
-							 
-								</label>
-									
+										<label className="switch">
+										  <input 
+											type="checkbox" 
+											name='domestic_return' 
+											defaultChecked={this.state.domestic_return} 
+											onChange={this.handleChecked}
+										 />
+										 <span className="slider round" />
+										</label>
 								
 									
 								
@@ -1265,33 +1426,22 @@ class AddProduct extends Component {
 							
 								<div className="form-group">
 								<label htmlFor="international_return">International Return</label>
-						<br/>
-								<button
-								type="button"  
-								name = "international_return" 
-								id="international_return" 
-								class="btn btn-secondary btn-sm"
-								onChange={this.handleChange}
-									onBlur={this.handleBlur}
-								>
-								International Return 
-								</button>
-							   &nbsp;
-							   &nbsp;
-								
-							
-							   <label className="switch">
-							  <input type="checkbox" />
-							 <span className="slider round" />
-							  &nbsp;
-							  &nbsp;
-									</label>
+									<br/>
 									
-							   </div>
-
+									<label className="switch">
+									  <input 
+									    type="checkbox" 
+										name='international_return' 
+										defaultChecked={this.state.international_return} 
+										onChange={this.handleChecked}
+									 />
+									 <span className="slider round" />
+									</label>
+							     </div>
 								
-*/} 
-	
+									
+								
+
 								
 								
 								
@@ -1300,8 +1450,10 @@ class AddProduct extends Component {
 									<button
 									  type="submit"
 									  className='btn btn-primary'
+									  disabled={this.state.isLoading}
 									>
-									  Submit
+									{this.state.isLoading ? "Loading..." : "Submit"}
+									 
 									</button>
 								  </div>
 								  </div>
